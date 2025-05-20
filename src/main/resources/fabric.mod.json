@@ -1,0 +1,20 @@
+{
+	"schemaVersion": 1,
+	"id": "playervaults",
+	"version": "1.0.0",
+	"name": "PlayerVaults",
+	"description": "A simple vault mod using JSON",
+	"authors": ["YourName"],
+	"license": "MIT",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.miron.playervaults.PlayerVaultsMod"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.14.0",
+		"minecraft": "1.21.1",
+		"fabric": "*"
+	}
+}
