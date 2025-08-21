@@ -1,4 +1,4 @@
-# Jays-playervaults
+# Juice-playervaults
  Simple Player Vaults mod for Minecraft 1.21.1 fabric With Luck Perms integration
 
  lp perms for player vaults:
