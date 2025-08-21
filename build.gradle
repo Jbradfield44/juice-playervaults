@@ -38,7 +38,7 @@ dependencies {
 
 	// Fabric API (modular form, required after switching to Mojang mappings)
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
-	
+	modImplementation("net.fabricmc.fabric-api:fabric-screen-handler-api-v1:0.91.1+1.21.1")
 }
 
 processResources {

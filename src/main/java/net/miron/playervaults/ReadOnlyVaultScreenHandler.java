@@ -16,8 +16,6 @@ public class ReadOnlyVaultScreenHandler extends ChestMenu {
 
     public ReadOnlyVaultScreenHandler(int syncId, Inventory playerInventory, Container vaultInventory) {
         super(MenuType.GENERIC_9x6, syncId, playerInventory, vaultInventory, 6); // 6 rows = 9x6 vault
-
-        // Override vault slots to make them read-only
         for (int i = 0; i < this.slots.size(); i++) {
             Slot slot = this.slots.get(i);
             if (slot.container == vaultInventory) {
@@ -29,7 +27,6 @@ public class ReadOnlyVaultScreenHandler extends ChestMenu {
                     public boolean mayPickup(Player player) {
                         return false;
                     }
-
                     @Override
                     public boolean mayPlace(ItemStack stack) {
                         return false;

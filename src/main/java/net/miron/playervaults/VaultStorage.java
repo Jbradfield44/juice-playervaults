@@ -9,8 +9,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.RegistryAccess; // ✅ Correct for Mojang mappings
-
+import net.minecraft.core.RegistryAccess;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -24,16 +23,18 @@ public class VaultStorage {
         try {
             baseDir.mkdirs();
             File file = new File(baseDir, uuid + "_pv" + number + ".json");
-
             List<String> itemNbtList = new ArrayList<>();
-            for (ItemStack stack : items) {
+            for (int i = 0; i < items.size(); i++) {
+                ItemStack stack = items.get(i);
                 if (!stack.isEmpty()) {
                     Tag rawTag = stack.save(registryAccess);
                     if (rawTag instanceof CompoundTag tag) {
                         itemNbtList.add(tag.toString());
                     } else {
-                        itemNbtList.add(null); // fallback in case it isn't a CompoundTag
+                        itemNbtList.add(null);
                     }
+                } else {
+                    itemNbtList.add(null);
                 }
             }
 
@@ -45,25 +46,22 @@ public class VaultStorage {
             e.printStackTrace();
         }
     }
-
-
     public static NonNullList<ItemStack> loadVault(UUID uuid, int number, int size, RegistryAccess registryAccess) {
         try {
             File file = new File(baseDir, uuid + "_pv" + number + ".json");
             if (!file.exists()) {
                 return NonNullList.withSize(size, ItemStack.EMPTY);
             }
-
             Type listType = new TypeToken<List<String>>() {}.getType();
             List<String> nbtStrings;
-
             try (FileReader reader = new FileReader(file)) {
                 nbtStrings = gson.fromJson(reader, listType);
             }
-
+            if (nbtStrings == null) {
+                return NonNullList.withSize(size, ItemStack.EMPTY);
+            }
             NonNullList<ItemStack> items = NonNullList.withSize(size, ItemStack.EMPTY);
-
-            for (int i = 0; i < nbtStrings.size(); i++) {
+            for (int i = 0; i < Math.min(nbtStrings.size(), size); i++) {
                 String nbt = nbtStrings.get(i);
                 if (nbt != null) {
                     try {
@@ -72,10 +70,12 @@ public class VaultStorage {
                         items.set(i, stack);
                     } catch (CommandSyntaxException e) {
                         e.printStackTrace();
+                        items.set(i, ItemStack.EMPTY);
                     }
+                } else {
+                    items.set(i, ItemStack.EMPTY);
                 }
             }
-
             return items;
         } catch (IOException e) {
             e.printStackTrace();

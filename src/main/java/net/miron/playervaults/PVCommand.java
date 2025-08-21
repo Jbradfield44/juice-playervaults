@@ -11,8 +11,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.NonNullList;
@@ -59,36 +60,35 @@ public class PVCommand {
         RegistryAccess registryAccess = target.server.registryAccess();
 
         var loaded = VaultStorage.loadVault(uuid, number, vaultSize, registryAccess);
-        SimpleContainer inv = new SimpleContainer(loaded.toArray(new ItemStack[0]));
+        SimpleContainer vaultContainer = new SimpleContainer(loaded.toArray(new ItemStack[0]));
 
         boolean isEditable = isSelf || PermissionUtils.canEditOthers(viewer, target);
 
         if (isEditable) {
-            inv.addListener(sender -> {
-                NonNullList<ItemStack> toSave = NonNullList.withSize(inv.getContainerSize(), ItemStack.EMPTY);
-                for (int i = 0; i < inv.getContainerSize(); i++) {
-                    toSave.set(i, inv.getItem(i));
+            vaultContainer.addListener(sender -> {
+                NonNullList<ItemStack> toSave = NonNullList.withSize(vaultContainer.getContainerSize(), ItemStack.EMPTY);
+                for (int i = 0; i < vaultContainer.getContainerSize(); i++) {
+                    toSave.set(i, vaultContainer.getItem(i));
                 }
-                VaultStorage.saveVault(uuid, number, toSave, registryAccess); // ✅ Pass registryAccess
+                VaultStorage.saveVault(uuid, number, toSave, registryAccess);
             });
         }
-
-
-        viewer.openMenu(new MenuProvider() {
-            @Override
-            public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
-                return ChestMenu.sixRows(syncId, playerInventory, inv);
-            }
-
+        MenuProvider menuProvider = new MenuProvider() {
             @Override
             public Component getDisplayName() {
                 return Component.literal((isSelf ? "Your" : target.getName().getString() + "'s") + " Vault #" + number + (isEditable ? "" : " (Read-Only)"));
             }
-        });
+            @Override
+            public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
+                return new ChestMenu(MenuType.GENERIC_9x6, syncId, playerInventory, vaultContainer, 6);
+            }
+        };
 
+        viewer.openMenu(menuProvider);
 
         if (!isEditable) {
             viewer.sendSystemMessage(Component.literal("§eNote: You are viewing this vault in read-only mode."));
+            viewer.sendSystemMessage(Component.literal("§6(Items cannot be moved, but you can still view them)"));
         }
 
         return 1;

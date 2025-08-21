@@ -14,7 +14,7 @@ public class ConfigManager {
     public static void load() {
         try {
             if (!configFile.exists()) {
-                save(); // write default if not present
+                save();
             } else {
                 FileReader reader = new FileReader(configFile);
                 config = gson.fromJson(reader, VaultsConfig.class);

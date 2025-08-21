@@ -60,7 +60,6 @@ public class PVExportCommand {
                                         context.getSource().sendFailure(Component.literal("Failed to export vault."));
                                         e.printStackTrace();
                                     }
-
                                     return 1;
                                 })
                         )
